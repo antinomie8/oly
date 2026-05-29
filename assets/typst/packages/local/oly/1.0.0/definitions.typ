@@ -51,6 +51,7 @@
 		"lemma": "Lemma",
 		"proof": "Proof",
 		"proposition": "Proposition",
+		"definition": "Definition",
 		"notation": "Notation",
 		"exercise": "Exercise",
 		"example": "Example",
@@ -67,7 +68,10 @@
 	return context env_names.at(
     text.lang,
     default: env_names.at("en"),
-  ).at(env, default: env)
+  ).at(
+    env,
+    default: upper(env.at(0)) + env.slice(1) // capitalize first letter
+  )
 }
 
 #let months = (

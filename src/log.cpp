@@ -4,6 +4,7 @@
 #include <limits>
 #include <print>
 #include <string>
+#include <unistd.h>
 
 #include "oly/config.hpp"
 #include "oly/constants.hpp"
@@ -56,6 +57,9 @@ static constexpr std::string severity_name(severity lvl) {
 	}
 }
 static constexpr std::string severity_color(severity lvl) {
+	if (!isatty(STDOUT_FILENO))
+		return "";
+
 	switch (lvl) {
 	case severity::CRITICAL:
 		return "\x1b[30m\x1b[48;5;196m";

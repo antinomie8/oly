@@ -5,6 +5,7 @@
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 #include <tree_sitter/api.h>

@@ -141,10 +141,11 @@
 				..calloutargs,
 				..additional_calloutargs,
 				title: get_env_name(env_name)
-					+ if number != none {
-						" " + number
-					}
+					+ if number != none { " " + number }
 					+ if type(name) == str or type(name) == content {
+						if type(name) == str and name.starts-with(regex("https?://")) {
+							name = link(name, text(fill: white, name))
+						}
 						" (" + name + ")"
 					},
 				body,
@@ -247,7 +248,7 @@
 ))
 #let (theorem, _theorem) = un-numbered(thm-box("theorem", linebreak: true, ..colors.env.theorems))
 #let (corollary, _corollary) = un-numbered(thm-box("corollary", ..colors.env.theorems))
-#let (proposition, _proposition) = un-numbered(thm-box("proposition", linebreak:true, ..colors.env.theorems))
+#let (proposition, _proposition) = un-numbered(thm-box("proposition", linebreak: true, ..colors.env.theorems))
 #let (lemma, _lemma) = un-numbered(thm-plain("lemma", box: true, accent-color: rgb("#009a55")))
 #let (example, _example) = un-numbered(thm-box("example", radius: 0em, ..colors.env.examples))
 

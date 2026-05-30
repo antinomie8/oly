@@ -44,27 +44,27 @@ FetchContent_MakeAvailable(tree-sitter ts-latex ts-typst)
 
 message(STATUS "Generating Tree-sitter LaTeX parser...")
 add_custom_command(
-    OUTPUT
-        ${ts-latex_SOURCE_DIR}/src/parser.c
-        ${ts-latex_SOURCE_DIR}/src/scanner.c
-    COMMAND tree-sitter generate
-    WORKING_DIRECTORY ${ts-latex_SOURCE_DIR}
-    DEPENDS
-        ${ts-latex_SOURCE_DIR}/grammar.js
-    COMMENT "Generating Tree-sitter LaTeX parser"
+	OUTPUT
+		${ts-latex_SOURCE_DIR}/src/parser.c
+		${ts-latex_SOURCE_DIR}/src/scanner.c
+	COMMAND tree-sitter generate
+	WORKING_DIRECTORY ${ts-latex_SOURCE_DIR}
+	DEPENDS
+		${ts-latex_SOURCE_DIR}/grammar.js
+	COMMENT "Generating Tree-sitter LaTeX parser"
 )
 add_custom_target(ts_latex_gen
-    DEPENDS
-        ${ts-latex_SOURCE_DIR}/src/parser.c
-        ${ts-latex_SOURCE_DIR}/src/scanner.c
+	DEPENDS
+		${ts-latex_SOURCE_DIR}/src/parser.c
+		${ts-latex_SOURCE_DIR}/src/scanner.c
 )
 
 # disable warnings for these files
 set(TS_NOISY_SOURCES
-    ${ts-latex_SOURCE_DIR}/src/parser.c
-    ${ts-latex_SOURCE_DIR}/src/scanner.c
-    ${ts-typst_SOURCE_DIR}/src/parser.c
-    ${ts-typst_SOURCE_DIR}/src/scanner.c
+	${ts-latex_SOURCE_DIR}/src/parser.c
+	${ts-latex_SOURCE_DIR}/src/scanner.c
+	${ts-typst_SOURCE_DIR}/src/parser.c
+	${ts-typst_SOURCE_DIR}/src/scanner.c
 )
 if(MSVC)
 	set_source_files_properties(${TS_NOISY_SOURCES} PROPERTIES COMPILE_FLAGS "/w")

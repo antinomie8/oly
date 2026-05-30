@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.0)
-project(oly VERSION 0.2.0 LANGUAGES C CXX)
+project(oly VERSION 0.3.0 LANGUAGES C CXX)
 
 # compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

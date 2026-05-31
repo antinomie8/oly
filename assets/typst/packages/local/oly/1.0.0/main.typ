@@ -24,6 +24,7 @@
 #let mp = sym.minus.plus
 #let sumcyc = $sum_("cyc")$
 #let sumsym = $sum_("sym")$
+#let tensor = sym.times.o
 #let int = sym.integral
 #let oint = sym.integral.cont
 #let iint = sym.integral.double

@@ -22,8 +22,6 @@
 #let iff = sym.arrow.l.r.double.long
 #let pm = sym.plus.minus
 #let mp = sym.minus.plus
-#let sumcyc = $sum_("cyc")$
-#let sumsym = $sum_("sym")$
 #let tensor = sym.times.o
 #let int = sym.integral
 #let oint = sym.integral.cont
@@ -32,9 +30,13 @@
 #let iiint = sym.integral.triple
 #let oiiint = sym.integral.vol
 
+#let ord = math.op("ord")
 #let pgcd = math.op("pgcd")
 #let ppcm = math.op("ppcm")
-#let ord = math.op("ord")
+
+#let sumcyc = $sum_("cyc")$
+#let sumsym = $sum_("sym")$
+#let NNN = $NN^*$
 
 #let pmod(x) = $space (mod #x)$
 #let dbbracket(lhs, rhs) = {

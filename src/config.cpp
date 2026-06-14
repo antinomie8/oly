@@ -84,34 +84,35 @@ static bool is_valid(const YAML::Node& config) {
 }
 
 static void add_defaults(YAML::Node& config) {
-	std::string cache_home;
-	const char* xdg_cache_home = std::getenv("XDG_CACHE_HOME");
-	if (!xdg_cache_home) {
-		const char* home = std::getenv("HOME");
-		if (!home) {
-			Log::CRITICAL("Nor $HOME nor $XDG_CACHE_HOME are set !");
-		} else {
-			cache_home = static_cast<std::string>(home) + "/.cache";
-		}
+	config["base_path"] = utils::expand_env_vars(config["base_path"].as<std::string>());
+
+	if (config["output_directory"]) {
+		config["output_directory"] =
+		    utils::expand_env_vars(config["output_directory"].as<std::string>());
 	} else {
-		cache_home = static_cast<std::string>(xdg_cache_home);
-	}
-	const char* tmpdir = std::getenv("TMPDIR");
-	if (!tmpdir) {
-		tmpdir = "/tmp";
+		std::string cache_home;
+		const char* xdg_cache_home = std::getenv("XDG_CACHE_HOME");
+		if (!xdg_cache_home) {
+			const char* home = std::getenv("HOME");
+			if (!home) {
+				Log::CRITICAL("Nor $HOME nor $XDG_CACHE_HOME are set !");
+			} else {
+				cache_home = static_cast<std::string>(home) + "/.cache";
+			}
+		} else {
+			cache_home = static_cast<std::string>(xdg_cache_home);
+		}
+		config["output_directory"] = cache_home + "/oly/${source}";
 	}
 
-	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    {"output_directory", cache_home + "/oly/${source}"},
-	    {"tmpdir", static_cast<std::string>(tmpdir) + "/oly/"}};
-	for (const auto& [key, value] : default_options) {
-		if (!config[key]) {
-			if (std::holds_alternative<bool>(value)) {
-				config[key] = std::get<bool>(value);
-			} else {
-				config[key] = std::get<std::string>(value);
-			}
+	if (config["tmpdir"]) {
+		config["tmpdir"] = utils::expand_env_vars(config["tmpdir"].as<std::string>());
+	} else {
+		const char* tmpdir = std::getenv("TMPDIR");
+		if (!tmpdir) {
+			tmpdir = "/tmp";
 		}
+		config["tmpdir"] = static_cast<std::string>(tmpdir) + "/oly/";
 	}
 
 	if (!config["preview"]) {
@@ -157,14 +158,6 @@ static void add_defaults(YAML::Node& config) {
 		constexpr size_t DEFAULT_METADATA_SIZE = sizeof(DEFAULT_METADATA_BYTES);
 		std::string metadata(DEFAULT_METADATA_BYTES, DEFAULT_METADATA_SIZE);
 		config["metadata"] = metadata;
-	}
-
-	std::string base_path = config["base_path"].as<std::string>();
-	if (base_path.starts_with("~")) {
-		const char* home = getenv("HOME");
-		if (home) {
-			config["base_path"] = std::string(home) + base_path.substr(1);
-		}
 	}
 }
 

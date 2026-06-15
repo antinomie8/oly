@@ -84,7 +84,7 @@ local function highlight_hrule(first, last)
 	local lines = vim.api.nvim_buf_get_lines(buf, first, last, false)
 
 	for lnum, line in ipairs(lines) do
-		if line:match("^#hrule%s*$") then
+		if line:match("^#divider%(%)%s*$") then
 			vim.api.nvim_buf_set_extmark(buf, ns_hrule, first + lnum - 1, 0, {
 				virt_text = { { string.rep("─", 80), "Indent" } },
 				virt_text_pos = "overlay",

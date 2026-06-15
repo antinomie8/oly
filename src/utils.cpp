@@ -98,7 +98,7 @@ bool is_separator(const std::string& line) {
 	if (opts.lang == configuration::lang::latex) {
 		separator_pattern = R"(^\\hrulebar\s*$)";
 	} else {
-		separator_pattern = R"(^#hrule\s*$)";
+		separator_pattern = R"(^#divider\(\)\s*$)";
 	}
 	return std::regex_match(line, separator_pattern);
 }

@@ -2,6 +2,6 @@ ${packages}
 
 
 
-#hrule
+#divider()
 
 

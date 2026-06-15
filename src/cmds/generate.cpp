@@ -206,7 +206,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			if (i == 1) {
 				out << bodies[i];
 			} else {
-				out << "#hrule" << "\n\n" << bodies[i];
+				out << "#divider()" << "\n\n" << bodies[i];
 			}
 		}
 

@@ -12,6 +12,7 @@ Rename::Rename() {
 	add("--alias,-a", "Alias the new file to the old one", false);
 }
 
+// TODO: Alter source metadata
 void Rename::move(const fs::path& from, const fs::path& to) {
 	try {
 		fs::create_directories(to.parent_path());

@@ -34,17 +34,11 @@ std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
 	std::vector<std::string> bodies;
 	std::string body;
 	std::string line;
-	while (getline(file, line)) {
-		if (!utils::is_yaml(line) && !utils::should_ignore(line)) {
-			if (utils::is_separator(line)) {
-				bodies.push_back(body);
-				body = "";
-			} else {
-				body += (line + '\n');
-			}
+	getline(file, line);
+	while (getline(file, line))
+		if (!utils::is_yaml(line) && !utils::should_ignore(line))
 			break;
-		}
-	}
+
 	while (getline(file, line)) {
 		if (utils::is_separator(line)) {
 			bodies.push_back(body);
@@ -65,6 +59,7 @@ YAML::Node Generate::get_solution_metadata(const fs::path& source) {
 
 	std::string yaml;
 	std::string line;
+	getline(file, line);
 	while (getline(file, line)) {
 		if (utils::is_yaml(line))
 			yaml += (line + '\n');
@@ -171,9 +166,9 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 #embed "../../assets/typst/preamble.typ"
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(TYPST_PREAMBLE);
-	std::string latex_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
+	std::string typst_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
 	if (positional_args.size() != 1) {
-		out << utils::expand_vars(latex_preamble);
+		out << utils::expand_vars(typst_preamble);
 	}
 
 	for (const std::string& problem : positional_args) {
@@ -182,7 +177,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		YAML::Node metadata = get_solution_metadata(pb_path);
 		if (positional_args.size() == 1) {
 			utils::yaml::merge_metadata(metadata);
-			out << utils::expand_vars(latex_preamble);
+			out << utils::expand_vars(typst_preamble);
 		}
 
 		bool is_problem = bodies.size() > 1;
@@ -283,7 +278,7 @@ int Generate::execute() {
 		if (opts.lang == configuration::lang::latex) {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));
-		} else {
+		} else if (opts.lang == configuration::lang::typst) {
 			create_typst_file(output_path / (source + ".typ"));
 			create_pdf_from_typst(output_path / (source + ".typ"));
 		}

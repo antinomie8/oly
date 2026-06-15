@@ -1,20 +1,8 @@
 #pragma once
 
-#include <filesystem>
-
 #include "oly/cmds/command.hpp"
 
-namespace fs = std::filesystem;
-
 class Edit : public Command {
-private:
-	void edit_problem(const std::string& source) const;
-	std::string get_solution(const fs::path& solution_path,
-	                         const std::string& source) const;
-
-	std::string parse_and_comment_metadata(const fs::path& source) const;
-	std::string uncomment_metadata(std::string& input) const;
-
 public:
 	Edit();
 	int execute() override;

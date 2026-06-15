@@ -38,11 +38,15 @@ YAML::Node Add::get_solution_metadata(const fs::path& base_path) const {
 void Add::create_solution_file(const fs::path& path, const std::string& body,
                                const YAML::Node& metadata) const {
 	std::string contents;
+	contents.append(opts.lang == configuration::lang::typst ? "/*" : "\\iffalse");
+	contents.append("\n");
 
 	YAML::Emitter out;
 	out << metadata;
 	contents.append(out.c_str());
 
+	contents.append("\n");
+	contents.append(opts.lang == configuration::lang::typst ? "*/" : "\\fi");
 	contents.append("\n\n");
 	contents.append(body);
 	utils::file::create(path, contents);

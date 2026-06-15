@@ -26,6 +26,7 @@ List::parse_metadata_from_file(const fs::path& solution_path) const {
 
 	std::string line;
 	std::string metadata;
+	getline(solution_file, line);
 	while (getline(solution_file, line)) {
 		if (utils::is_yaml(line)) {
 			metadata += (line + '\n');

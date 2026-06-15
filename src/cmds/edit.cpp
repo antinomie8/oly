@@ -9,7 +9,7 @@
 
 Edit::Edit() = default;
 
-std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) const {
+static std::string parse_metadata_and_return_content(const fs::path& solution_path) {
 	std::ifstream solution_file(solution_path);
 	if (!solution_file.is_open())
 		Log::CRITICAL("Could not open " + solution_path.string() + "!");
@@ -17,28 +17,19 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	std::string solution;
 	std::string line;
 	std::string metadata;
-	if (opts.lang == configuration::lang::typst)
-		solution += "/*\n";
+	getline(solution_file, line);
+	solution += (line + '\n');
 	while (getline(solution_file, line)) {
+		solution += (line + '\n');
 		if (!utils::is_yaml(line)) {
-			if (opts.lang == configuration::lang::typst)
-				solution += "*/\n";
-			solution += (line + '\n');
 			break;
 		} else {
-			if (opts.lang == configuration::lang::latex)
-				solution += "% ";
-			solution += (line + '\n');
 			metadata += (line + '\n');
 		}
 	}
 	while (getline(solution_file, line)) {
 		solution += (line + '\n');
 	}
-
-	// empty typst files
-	if (solution == "/*\n")
-		solution += "*/\n";
 
 	try {
 		utils::yaml::merge_metadata(YAML::Load(metadata));
@@ -49,26 +40,9 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	return solution;
 }
 
-std::string Edit::uncomment_metadata(std::string& input) const {
-	if (opts.lang == configuration::lang::typst) {
-		if (input.starts_with("/*\n")) {
-			input = input.substr(3);
-		}
-		unsigned long closing = input.find("*/\n");
-		if (closing != std::string::npos) {
-			input = input.substr(0, closing) + input.substr(closing + 3);
-		}
-	} else {
-		static const std::regex re(R"(^\s*%\s*(.*)$)", std::regex::multiline);
-		return std::regex_replace(input, re, "$1");
-	}
-
-	return input;
-}
-
-std::string Edit::get_solution(const fs::path& solution_path,
-                               const std::string& source) const {
-	std::string solution = parse_and_comment_metadata(solution_path);
+static std::string get_solution(const fs::path& solution_path,
+                                const std::string& source) {
+	std::string solution = parse_metadata_and_return_content(solution_path);
 
 	utils::preview::create_preview_file(source);
 
@@ -83,10 +57,10 @@ std::string Edit::get_solution(const fs::path& solution_path,
 
 	utils::figures::save(tmp_path, solution_path.parent_path());
 
-	return uncomment_metadata(input);
+	return input;
 }
 
-void Edit::edit_problem(const std::string& pb) const {
+static void edit_problem(const std::string& pb) {
 	fs::path solution_path = get_problem_solution_path(pb);
 	std::string source = get_problem_name(pb);
 	shared["source"] = source;

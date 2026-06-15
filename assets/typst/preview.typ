@@ -1,4 +1,5 @@
-#import "@local/oly:1.0.0": *
+${packages}
+
 #set text(lang: "${language}")
 
 #let has_title = (str.len("${title}") != 0)

@@ -365,6 +365,8 @@ void merge_metadata(const YAML::Node& extend, bool override) {
 namespace preview {
 void create_preview_file(const std::string& source) {
 	fs::path preview_file_path(opts.tmpdir / source / ("preview" + filetype_extension()));
+	shared["packages"] =
+	    opts.lang == configuration::lang::latex ? opts.latex_packages : opts.typst_packages;
 	utils::file::create(preview_file_path, utils::expand_vars(opts.preview));
 }
 } // namespace preview

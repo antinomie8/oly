@@ -97,9 +97,9 @@ struct Options {
 	// defaults to ${TMPDIR:-/tmp}/oly
 	fs::path tmpdir;
 
-	// added right after \documentclass in the preview file in latex
-	// meant to specify which latex packages to use
-	std::string packages;
+	// packages to import
+	std::string latex_packages;
+	std::string typst_packages;
 
 	// preview is what gets put in the preview file
 	// contents is the initial content in a file opened through 'oly add'
@@ -157,8 +157,12 @@ struct Options {
 			output_directory = fs::weakly_canonical(node["output_directory"].as<std::string>());
 		if (node["tmpdir"])
 			tmpdir = fs::weakly_canonical(node["tmpdir"].as<std::string>());
-		if (node["packages"])
-			packages = node["packages"].as<std::string>();
+		if (node["packages"]) {
+			if (node["packages"]["latex"])
+				latex_packages = node["packages"]["latex"].as<std::string>();
+			if (node["packages"]["typst"])
+				typst_packages = node["packages"]["typst"].as<std::string>();
+		}
 		if (node["preview"])
 			preview = node["preview"].as<std::string>();
 		if (node["contents"])

@@ -83,6 +83,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
+	shared["packages"] = opts.latex_packages;
 	out << utils::expand_vars(latex_preamble);
 
 	for (const std::string& problem : positional_args) {
@@ -167,6 +168,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(TYPST_PREAMBLE);
 	std::string typst_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
+	shared["packages"] = opts.typst_packages;
 	if (positional_args.size() != 1) {
 		out << utils::expand_vars(typst_preamble);
 	}

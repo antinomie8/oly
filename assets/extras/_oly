@@ -43,6 +43,7 @@ local -a opts_gen=(
 	'--no-source[Remove the source file and induce --clean]'
 	'--cwd[Create the pdf in the current directory]'
 	'(-p --print-path)'{-p,--print-path}'[Print the path of the directory where the pdf will be generated]'
+	'--clear-cache[Clear the cache]'
 )
 
 local -a opts_show=(

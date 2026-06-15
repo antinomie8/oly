@@ -2,12 +2,14 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <print>
 #include <regex>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "oly/config.hpp"
+#include "oly/constants.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -234,6 +236,23 @@ std::vector<std::string> prompt_user_for_problems() {
 	pclose(pipe);
 
 	return result;
+}
+
+bool prompt_before_deletion(const fs::path& path) {
+	std::print("Are you sure you want to remove {}{}{} ? [y/n] ", Color::RED, path.string(),
+	           Color::RESET);
+
+	std::string input;
+	if (!std::getline(std::cin, input)) {
+		return false; // EOF or error
+	}
+
+	if (input.empty()) {
+		return false; // default is No
+	}
+
+	char c = static_cast<char>(std::tolower(input[0]));
+	return c == 'y';
 }
 
 input_file::input_file(fs::path filepath, bool remove)

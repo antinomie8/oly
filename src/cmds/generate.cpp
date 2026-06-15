@@ -24,6 +24,7 @@ Generate::Generate() {
 	add("--cwd", "Create the pdf in the current directory", false);
 	add("--print-path,-p",
 	    "Print the path of the directory where the pdf will be generated", false);
+	add("--clear-cache", "Clear the cache", false);
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -261,6 +262,17 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 }
 
 int Generate::execute() {
+	if (get<bool>("--clear-cache")) {
+		fs::path path = opts.output_directory;
+		while (path.stem().string().contains("${")) {
+			path = path.parent_path();
+		}
+		if (utils::prompt_before_deletion(path)) {
+			fs::remove_all(opts.output_directory);
+		}
+		return 0;
+	}
+
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {
 			positional_args.push_back(problem);

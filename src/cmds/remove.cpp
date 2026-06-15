@@ -1,10 +1,7 @@
 #include <filesystem>
-#include <iostream>
-#include <print>
 
 #include "oly/cmds/remove.hpp"
 #include "oly/config.hpp"
-#include "oly/constants.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
@@ -16,28 +13,11 @@ Remove::Remove() {
 	add("--force,-f", "Do not prompt before deleting file", [] { opts.confirm = false; });
 }
 
-static bool prompt_before_deletion(const fs::path& path) {
-	std::print("Are you sure you want to remove {}{}{} ? [y/n] ", Color::GREEN,
-	           path.string(), Color::RESET);
-
-	std::string input;
-	if (!std::getline(std::cin, input)) {
-		return false; // EOF or error
-	}
-
-	if (input.empty()) {
-		return false; // default is No
-	}
-
-	char c = static_cast<char>(std::tolower(input[0]));
-	return c == 'y';
-}
-
 static void delete_problem(const fs::path& path) {
 	if (!fs::exists(path)) {
 		Log::ERROR(path.string() + " doesn't exist !");
 	} else {
-		if (!opts.confirm || prompt_before_deletion(path)) {
+		if (!opts.confirm || utils::prompt_before_deletion(path)) {
 			if (!fs::remove_all(path)) {
 				Log::ERROR(path.string() + " couldn't be removed...");
 			} else {

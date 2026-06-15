@@ -48,6 +48,9 @@ bool is_executable(const std::string& program);
 [[nodiscard]]
 std::vector<std::string> prompt_user_for_problems();
 
+[[nodiscard]]
+bool prompt_before_deletion(const fs::path& path);
+
 struct input_file {
 	fs::path filepath;
 	std::string contents;

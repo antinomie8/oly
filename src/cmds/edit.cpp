@@ -16,7 +16,7 @@ static std::string parse_metadata_and_return_content(const fs::path& solution_pa
 
 	std::string solution;
 	std::string line;
-	std::string metadata;
+	std::string metadata_str;
 	getline(solution_file, line);
 	solution += (line + '\n');
 	while (getline(solution_file, line)) {
@@ -24,7 +24,7 @@ static std::string parse_metadata_and_return_content(const fs::path& solution_pa
 		if (!utils::is_yaml(line)) {
 			break;
 		} else {
-			metadata += (line + '\n');
+			metadata_str += (line + '\n');
 		}
 	}
 	while (getline(solution_file, line)) {
@@ -32,7 +32,7 @@ static std::string parse_metadata_and_return_content(const fs::path& solution_pa
 	}
 
 	try {
-		utils::yaml::merge_metadata(YAML::Load(metadata));
+		metadata = YAML::Load(metadata_str);
 	} catch (std::exception& e) {
 		Log::ERROR(e.what());
 	}

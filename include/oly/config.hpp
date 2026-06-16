@@ -109,6 +109,8 @@ struct Options {
 	std::string metadata;
 
 	void update(const YAML::Node& node) {
+		this->config = node;
+
 		if (node["author"])
 			author = node["author"].as<std::string>();
 		if (node["base_path"])
@@ -170,6 +172,17 @@ struct Options {
 		if (node["metadata"])
 			metadata = node["metadata"].as<std::string>();
 	}
+
+	std::optional<std::string> query(std::string config_key) {
+		if (config[config_key] && config[config_key].IsScalar()) {
+			return config[config_key].as<std::string>();
+		} else {
+			return std::nullopt;
+		}
+	}
+
+private:
+	YAML::Node config;
 };
 
 inline Options opts;

@@ -83,8 +83,6 @@ std::optional<YAML::Node> load(const fs::path& filepath) noexcept;
 std::optional<YAML::Node> load(const std::string& yaml, std::string source = "") noexcept;
 
 void merge(YAML::Node& from, const YAML::Node& extend, bool override = true);
-
-void merge_metadata(const YAML::Node& extend, bool override = true);
 } // namespace yaml
 
 namespace preview {

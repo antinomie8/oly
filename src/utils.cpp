@@ -41,16 +41,23 @@ void print_help() {
 std::string expand_vars(const std::string& str, bool expand_config_vars,
                         bool expand_env_vars) {
 	auto formatter = [&](const std::string& match) -> std::string {
-		if (expand_config_vars && metadata[match] && metadata[match].IsScalar()) {
-			return metadata[match].as<std::string>();
-		} else if (expand_config_vars && shared.contains(match)) {
-			return shared[match];
-		} else if (expand_env_vars) {
+		if (expand_config_vars) {
+			if (metadata[match])
+				return metadata[match].as<std::string>();
+
+			auto rep = opts.query(match);
+			if (rep)
+				return rep.value();
+
+			if (shared.contains(match)) {
+				return shared[match];
+			}
+		}
+		if (expand_env_vars) {
 			const char* s = getenv(match.c_str());
 			return (s == nullptr ? "" : s);
-		} else {
-			return "";
 		}
+		return "";
 	};
 
 	std::string fmt = utils::expand_vars(str, formatter);
@@ -375,9 +382,6 @@ void merge(YAML::Node& base, const YAML::Node& extend, bool override) {
 			}
 		}
 	}
-}
-void merge_metadata(const YAML::Node& extend, bool override) {
-	utils::yaml::merge(metadata, extend, override);
 }
 } // namespace yaml
 

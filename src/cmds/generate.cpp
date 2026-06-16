@@ -25,6 +25,8 @@ Generate::Generate() {
 	add("--print-path,-p",
 	    "Print the path of the directory where the pdf will be generated", false);
 	add("--clear-cache", "Clear the cache", false);
+	add("--regen", "Regenerate the pdf even if it was cached", false);
+	add("--all", "Generate a pdf for each solution file", false);
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -75,7 +77,39 @@ YAML::Node Generate::get_solution_metadata(const fs::path& source) {
 	return data.value();
 }
 
-void Generate::create_latex_file(const fs::path& latex_file_path) {
+void Generate::create_pdf(const std::vector<std::string>& problems) {
+	std::string source = shared["source"];
+	fs::path output_file_path(fs::path(utils::expand_vars(opts.output_directory)) / source /
+	                          (source + utils::filetype_extension()));
+
+	bool regenerate = get<bool>("--regen");
+	if (!regenerate && fs::exists(output_file_path)) {
+		auto t_output = fs::last_write_time(output_file_path);
+		fs::file_time_type t_input = t_output;
+		for (const auto& problem : problems) {
+			t_input = max(t_input, fs::last_write_time(get_problem_solution_path(problem)));
+		}
+		regenerate = t_input > t_output;
+	}
+	if (regenerate) {
+		try {
+			if (opts.lang == configuration::lang::latex) {
+				create_latex_file(problems, output_file_path);
+				compile_latex_file(problems, output_file_path);
+			} else if (opts.lang == configuration::lang::typst) {
+				create_typst_file(problems, output_file_path);
+				compile_typst_file(problems, output_file_path);
+			}
+		} catch (const std::exception& e) {
+			Log::ERROR(e.what());
+		}
+	} else {
+		utils::run({opts.pdf_viewer, output_file_path.replace_extension(".pdf")});
+	}
+}
+
+void Generate::create_latex_file(const std::vector<std::string>& problems,
+                                 const fs::path& latex_file_path) {
 	fs::create_directories(latex_file_path.parent_path());
 	std::ofstream out(latex_file_path);
 
@@ -87,12 +121,12 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 	shared["packages"] = opts.latex_packages;
 	out << utils::expand_vars(latex_preamble);
 
-	for (const std::string& problem : positional_args) {
+	for (const std::string& problem : problems) {
 		const fs::path pb_path = get_problem_solution_path(problem);
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
 
-		if (positional_args.size() > 1)
+		if (problems.size() > 1)
 			out << "\\begin{problem}";
 		else
 			out << "\\begin{problem*}";
@@ -101,7 +135,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		out << "\n";
 		if (!bodies.empty())
 			out << bodies[0];
-		if (positional_args.size() > 1)
+		if (problems.size() > 1)
 			out << "\\end{problem}";
 		else
 			out << "\\end{problem*}";
@@ -119,14 +153,15 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 	out.close();
 }
 
-void Generate::create_pdf_from_latex(fs::path latex_file_path) {
+void Generate::compile_latex_file(const std::vector<std::string>& problems,
+                                  fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
 	if (!utils::is_executable("latexmk"))
 		Log::CRITICAL("latexmk is not executable");
 	if (opts.open && !utils::is_executable(opts.pdf_viewer))
-		Log::CRITICAL(opts.pdf_viewer + " is not executable");
+		Log::ERROR(opts.pdf_viewer + " is not executable");
 
 	std::vector<std::string> cmd{
 	    "latexmk",
@@ -160,7 +195,8 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	}
 }
 
-void Generate::create_typst_file(const fs::path& typst_file_path) {
+void Generate::create_typst_file(const std::vector<std::string>& problems,
+                                 const fs::path& typst_file_path) {
 	fs::create_directories(typst_file_path.parent_path());
 	std::ofstream out(typst_file_path);
 
@@ -170,27 +206,28 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(TYPST_PREAMBLE);
 	std::string typst_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
 	shared["packages"] = opts.typst_packages;
-	if (positional_args.size() != 1) {
+	if (problems.size() != 1) {
 		out << utils::expand_vars(typst_preamble);
 	}
 
-	for (const std::string& problem : positional_args) {
+	for (const std::string& problem : problems) {
 		const fs::path pb_path = get_problem_solution_path(problem);
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
-		YAML::Node metadata = get_solution_metadata(pb_path);
-		if (positional_args.size() == 1) {
-			utils::yaml::merge_metadata(metadata);
+		YAML::Node metadata_node = get_solution_metadata(pb_path);
+
+		if (problems.size() == 1) {
+			metadata = metadata_node;
 			out << utils::expand_vars(typst_preamble);
 		}
 
 		bool is_problem = bodies.size() > 1;
 		if (is_problem) {
-			if (positional_args.size() > 1)
+			if (problems.size() > 1)
 				out << "#problem";
 			else
 				out << "#_problem";
-			if (metadata["source"])
-				out << "(\"" << metadata["source"] << "\")";
+			if (metadata_node["source"])
+				out << "(\"" << metadata_node["source"] << "\")";
 			out << "[\n";
 		}
 		if (!bodies.empty())
@@ -199,8 +236,9 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			out << "]";
 		out << "\n\n";
 
-		if (metadata["url"] and !metadata["url"].IsNull())
-			out << "#link(\"" << metadata["url"] << "\")[_" << metadata["url"] << " _]"
+		if (metadata_node["url"] and !metadata_node["url"].IsNull())
+			out << "#link(\"" << metadata_node["url"] << "\")[_" << metadata_node["url"]
+			    << " _]"
 			    << "\n\n";
 
 		for (size_t i = 1; i < bodies.size(); ++i) {
@@ -211,24 +249,25 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			}
 		}
 
-		if (&problem != &positional_args.back())
+		if (&problem != &problems.back())
 			out << "\n" << "#pagebreak()" << "\n\n";
 	}
 
 	out.close();
 }
 
-void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
+void Generate::compile_typst_file(const std::vector<std::string>& problems,
+                                  const fs::path& typst_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
 	if (!utils::is_executable("typst"))
 		Log::CRITICAL("typst is not executable");
 	if (opts.open && !utils::is_executable(opts.pdf_viewer))
-		Log::CRITICAL(opts.pdf_viewer + " is not executable");
+		Log::ERROR(opts.pdf_viewer + " is not executable");
 
 	// BUG: unhandled conflicts (figures with the same name)
-	for (std::string problem : positional_args) {
+	for (std::string problem : problems) {
 		utils::figures::copy(typst_file_path.parent_path(), get_problem_path(problem));
 	}
 
@@ -268,7 +307,35 @@ int Generate::execute() {
 			path = path.parent_path();
 		}
 		if (utils::prompt_before_deletion(path)) {
-			fs::remove_all(opts.output_directory);
+			fs::remove_all(path);
+		}
+		return 0;
+	}
+
+	if (get<bool>("--all")) {
+		opts.open = false;
+		set("--regen", true);
+		for (const auto& entry : fs::recursive_directory_iterator(opts.base_path)) {
+			if (entry.is_regular_file() &&
+			    entry.path().filename().stem().string() == "solution") {
+
+				if (entry.path().extension() == ".typ") {
+					opts.lang = configuration::lang::typst;
+				} else if (entry.path().extension() == ".tex") {
+					opts.lang = configuration::lang::latex;
+				} else {
+					continue;
+				}
+
+				YAML::Node metadata = get_solution_metadata(entry.path());
+				if (!metadata["source"]) {
+					Log::ERROR("No source entry found in " + entry.path().string());
+					continue;
+				}
+
+				shared["source"] = metadata["source"].as<std::string>();
+				Generate::create_pdf({metadata["source"].as<std::string>()});
+			}
 		}
 		return 0;
 	}
@@ -286,19 +353,7 @@ int Generate::execute() {
 	source = source.substr(0, source.length() - 3);
 	shared["source"] = source;
 
-	fs::path output_path(fs::path(utils::expand_vars(opts.output_directory)) / source);
-
-	try {
-		if (opts.lang == configuration::lang::latex) {
-			create_latex_file(output_path / (source + ".tex"));
-			create_pdf_from_latex(output_path / (source + ".tex"));
-		} else if (opts.lang == configuration::lang::typst) {
-			create_typst_file(output_path / (source + ".typ"));
-			create_pdf_from_typst(output_path / (source + ".typ"));
-		}
-	} catch (const std::exception& e) {
-		Log::ERROR(e.what());
-	}
+	Generate::create_pdf(positional_args);
 
 	return 0;
 }

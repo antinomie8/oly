@@ -4,8 +4,6 @@
 #include <filesystem>
 #include <optional>
 #include <string>
-#include <unordered_map>
-#include <variant>
 
 #include "yaml-cpp/yaml.h"
 
@@ -102,7 +100,7 @@ static void add_defaults(YAML::Node& config) {
 		} else {
 			cache_home = static_cast<std::string>(xdg_cache_home);
 		}
-		config["output_directory"] = cache_home + "/oly/${source}";
+		config["output_directory"] = cache_home + "/oly";
 	}
 
 	if (config["tmpdir"]) {
@@ -189,7 +187,6 @@ void load_config(std::string config_file_path) {
 			userconfig = utils::yaml::load(config_file);
 		}
 
-		utils::yaml::merge_metadata(userconfig.value(), false);
 		add_defaults(userconfig.value());
 		try {
 			opts.update(userconfig.value());

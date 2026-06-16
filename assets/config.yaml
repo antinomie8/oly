@@ -62,8 +62,8 @@ colorscheme:
   markup.math: "#7fb4ca"
 
 # where to output the generated pdf
-# defaults to ${XDG_CACHE_HOME:-~/.cache}/oly/${source}
-# output_directory: ${PWD}/oly
+# defaults to ${XDG_CACHE_HOME:-~/.cache}/oly
+# output_directory: ${PWD}
 
 # where temporary files are written
 # defaults to ${TMPDIR:-/tmp}/oly

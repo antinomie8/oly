@@ -112,6 +112,17 @@ bool is_separator(const std::string& line) {
 	return std::regex_match(line, separator_pattern);
 }
 
+std::string trim_newlines(const std::string& str) {
+	auto start = str.begin();
+	while (start != str.end() && *start == '\n')
+		++start;
+	auto end = str.end();
+	do {
+		--end;
+	} while (end != start && *start == '\n');
+	return std::string(start, end + 1);
+}
+
 bool is_yaml(const std::string& line) {
 	std::regex yaml_pattern(R"(^[A-Za-z]+:\s*.+$)");
 	return std::regex_match(line, yaml_pattern);

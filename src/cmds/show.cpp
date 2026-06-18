@@ -131,15 +131,8 @@ static std::string colorize(const std::string& input) {
 	return result;
 }
 
-static std::string trim_trailing_newlines(std::string& input) {
-	while (input.back() == '\n') {
-		input = input.substr(0, input.length() - 1);
-	}
-	return input + '\n';
-}
-
 std::string Show::process(std::string& input) const {
-	input = trim_trailing_newlines(input);
+	input = utils::trim_newlines(input);
 	std::string color_opt = get<std::string>("--color");
 	if (color_opt == "auto") {
 		color_opt = isatty(STDOUT_FILENO) ? "always" : "never";

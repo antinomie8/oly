@@ -243,7 +243,7 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 
 		for (size_t i = 1; i < bodies.size(); ++i) {
 			if (i == 1) {
-				out << bodies[i];
+				out << "#solution[\n" << utils::trim_newlines(bodies[i]) << "\n]";
 			} else {
 				out << "#divider()" << "\n\n" << bodies[i];
 			}

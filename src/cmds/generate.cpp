@@ -37,7 +37,6 @@ std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
 	std::vector<std::string> bodies;
 	std::string body;
 	std::string line;
-	getline(file, line);
 	while (getline(file, line))
 		if (!utils::is_yaml(line) && !utils::should_ignore(line))
 			break;

@@ -130,7 +130,11 @@ bool is_yaml(const std::string& line) {
 
 bool should_ignore(const std::string& line) {
 	if (opts.lang == Config::lang::typst) {
-		if (line.starts_with("#import")) {
+		if (line.starts_with("#import") || line == "/*" or line == "*/") {
+			return true;
+		}
+	} else {
+		if (line.starts_with("\\usepackage") || line == "\\iffalse" or line == "\\fi") {
 			return true;
 		}
 	}

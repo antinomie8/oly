@@ -71,8 +71,8 @@ colorscheme:
 
 # packages to import
 packages:
-  # latex: ['\usepackage[whatever]{somepackage}']
-  typst: ['#import "@local/oly:1.0.0": *']
+  # latex: '\usepackage[whatever]{somepackage}'
+  typst: '#import "@local/oly:1.0.0": *'
 
 # metadata you get prompted for in 'oly add'
 # metadata: "\

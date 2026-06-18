@@ -107,7 +107,7 @@ void Generate::create_pdf(const std::vector<std::string>& problems) {
 			Log::ERROR(e.what());
 		}
 	} else {
-		utils::run({opts.pdf_viewer, output_file_path.replace_extension(".pdf")});
+		utils::run({opts.pdf_viewer, output_file_path.replace_extension(".pdf")}, true, true);
 	}
 }
 

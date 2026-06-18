@@ -43,7 +43,7 @@ bool should_ignore(const std::string& line);
 
 bool copy_dir(const fs::path& from, const std::string& to);
 
-int run(const std::vector<std::string>& args, bool silent = false);
+int run(const std::vector<std::string>& args, bool silent = false, bool detach = false);
 
 [[nodiscard]]
 bool is_executable(const std::string& program);

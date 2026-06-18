@@ -5,8 +5,10 @@
 #include <iostream>
 #include <print>
 #include <regex>
+#include <string>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <vector>
 
 #include "oly/config.hpp"
 #include "oly/constants.hpp"
@@ -174,7 +176,10 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	return true;
 }
 
-int run(const std::vector<std::string>& args, bool silent) {
+int run(const std::vector<std::string>& args, bool silent, bool detach) {
+	if (args.empty())
+		return -1;
+
 	std::vector<char*> c_args(args.size() + 1);
 	for (size_t i = 0; i < args.size(); ++i)
 		c_args[i] = const_cast<char*>(args[i].c_str());
@@ -182,9 +187,27 @@ int run(const std::vector<std::string>& args, bool silent) {
 
 	pid_t pid = fork();
 
+	if (pid < 0)
+		return -1;
+
 	if (pid == 0) {
-		// child
-		if (silent) {
+		if (detach) {
+			setsid();
+			pid_t grandchild = fork();
+
+			if (grandchild < 0)
+				_exit(1);
+			if (grandchild > 0)
+				_exit(0);
+
+			int devnull = open("/dev/null", O_RDWR);
+			if (devnull != -1) {
+				dup2(devnull, STDIN_FILENO);
+				dup2(devnull, STDOUT_FILENO);
+				dup2(devnull, STDERR_FILENO);
+				close(devnull);
+			}
+		} else if (silent) {
 			int devnull = open("/dev/null", O_WRONLY);
 			if (devnull != -1) {
 				dup2(devnull, STDOUT_FILENO);
@@ -194,7 +217,7 @@ int run(const std::vector<std::string>& args, bool silent) {
 		}
 
 		execvp(c_args[0], c_args.data());
-		_exit(127); // exec failed
+		_exit(127);
 	}
 
 	int status;

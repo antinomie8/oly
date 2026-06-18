@@ -17,9 +17,11 @@ Add::Add() {
 std::string Add::get_solution_body(const fs::path& base_path,
                                    const std::string& source) const {
 	utils::preview::create_preview_file(source);
+	std::string contents =
+	    opts.lang == Config::lang::latex ? opts.latex_contents : opts.typst_contents;
 	std::string input =
 	    utils::input_file(base_path / ("solution" + utils::filetype_extension()),
-	                      utils::expand_vars(opts.contents), false)
+	                      utils::expand_vars(contents), false)
 	        .lines(true);
 	return input;
 }

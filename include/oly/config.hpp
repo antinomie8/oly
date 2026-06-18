@@ -101,11 +101,15 @@ struct Options {
 	std::string latex_packages;
 	std::string typst_packages;
 
-	// preview is what gets put in the preview file
-	// contents is the initial content in a file opened through 'oly add'
-	// metadata is the metadata you get prompted for in 'oly add'
-	std::string preview;
-	std::string contents;
+	// what gets put in the preview file
+	std::string latex_preview;
+	std::string typst_preview;
+
+	// the initial content in a file opened through 'oly add'
+	std::string latex_contents;
+	std::string typst_contents;
+
+	// metadata you get prompted for in 'oly add'
 	std::string metadata;
 
 	void update(const YAML::Node& node) {
@@ -165,10 +169,18 @@ struct Options {
 			if (node["packages"]["typst"])
 				typst_packages = node["packages"]["typst"].as<std::string>();
 		}
-		if (node["preview"])
-			preview = node["preview"].as<std::string>();
-		if (node["contents"])
-			contents = node["contents"].as<std::string>();
+		if (node["preview"]) {
+			if (node["preview"]["latex"])
+				latex_preview = node["preview"]["latex"].as<std::string>();
+			if (node["preview"]["typst"])
+				typst_preview = node["preview"]["typst"].as<std::string>();
+		}
+		if (node["contents"]) {
+			if (node["contents"]["latex"])
+				latex_contents = node["contents"]["latex"].as<std::string>();
+			if (node["contents"]["typst"])
+				typst_contents = node["contents"]["typst"].as<std::string>();
+		}
 		if (node["metadata"])
 			metadata = node["metadata"].as<std::string>();
 	}

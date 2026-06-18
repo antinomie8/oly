@@ -401,7 +401,9 @@ void create_preview_file(const std::string& source) {
 	fs::path preview_file_path(opts.tmpdir / source / ("preview" + filetype_extension()));
 	shared["packages"] =
 	    opts.lang == Config::lang::latex ? opts.latex_packages : opts.typst_packages;
-	utils::file::create(preview_file_path, utils::expand_vars(opts.preview));
+	std::string preview_contents =
+	    opts.lang == Config::lang::latex ? opts.latex_preview : opts.typst_preview;
+	utils::file::create(preview_file_path, utils::expand_vars(preview_contents));
 }
 } // namespace preview
 

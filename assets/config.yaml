@@ -74,14 +74,15 @@ packages:
   # latex: ['\usepackage[whatever]{somepackage}']
   typst: ['#import "@local/oly:1.0.0": *']
 
-# You can also override preview, contents, and metadata.
-# preview is what gets put in the preview file
-# contents is the initial content in a file opened through 'oly add'
-# metadata is the metadata you get prompted for in 'oly add'
-# For example, you can use the following
+# metadata you get prompted for in 'oly add'
 # metadata: "\
 #   source: ${source}\n\
 #   topic:  ${topic}\n\
 #   tags:   []\n\
 #   url:    \n\
 #   "
+
+# You can also override preview and contents
+# preview is what gets put in the preview file
+# contents is the initial content in a file opened through 'oly add'
+# both should map keys 'latex' or 'typst' (or both) to a string

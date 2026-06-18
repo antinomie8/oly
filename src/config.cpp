@@ -113,40 +113,38 @@ static void add_defaults(YAML::Node& config) {
 		config["tmpdir"] = static_cast<std::string>(tmpdir) + "/oly/";
 	}
 
-	if (!config["preview"]) {
-		if (config["lang"].as<std::string>() == "latex") {
-			constexpr char DEFAULT_PREVIEW_BYTES[] = {
+	if (!config["preview"] || !config["preview"]["latex"]) {
+		constexpr char DEFAULT_preview_BYTES[] = {
 #embed "../assets/tex/preview.tex"
-			};
-			constexpr size_t DEFAULT_PREVIEW_SIZE = sizeof(DEFAULT_PREVIEW_BYTES);
-			std::string preview(DEFAULT_PREVIEW_BYTES, DEFAULT_PREVIEW_SIZE);
-			config["preview"] = preview;
-		} else {
-			constexpr char DEFAULT_PREVIEW_BYTES[] = {
+		};
+		constexpr size_t DEFAULT_preview_SIZE = sizeof(DEFAULT_preview_BYTES);
+		std::string preview(DEFAULT_preview_BYTES, DEFAULT_preview_SIZE);
+		config["preview"]["latex"] = preview;
+	}
+	if (!config["preview"] || !config["preview"]["typst"]) {
+		constexpr char DEFAULT_preview_BYTES[] = {
 #embed "../assets/typst/preview.typ"
-			};
-			constexpr size_t DEFAULT_PREVIEW_SIZE = sizeof(DEFAULT_PREVIEW_BYTES);
-			std::string preview(DEFAULT_PREVIEW_BYTES, DEFAULT_PREVIEW_SIZE);
-			config["preview"] = preview;
-		}
+		};
+		constexpr size_t DEFAULT_preview_SIZE = sizeof(DEFAULT_preview_BYTES);
+		std::string preview(DEFAULT_preview_BYTES, DEFAULT_preview_SIZE);
+		config["preview"]["typst"] = preview;
 	}
 
-	if (!config["contents"]) {
-		if (config["lang"].as<std::string>() == "latex") {
-			constexpr char DEFAULT_CONTENTS_BYTES[] = {
+	if (!config["preview"] || !config["contents"]["latex"]) {
+		constexpr char DEFAULT_CONTENTS_BYTES[] = {
 #embed "../assets/tex/contents.tex"
-			};
-			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
-			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
-			config["contents"] = contents;
-		} else {
-			constexpr char DEFAULT_CONTENTS_BYTES[] = {
+		};
+		constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
+		std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
+		config["contents"]["latex"] = contents;
+	}
+	if (!config["preview"] || !config["contents"]["typst"]) {
+		constexpr char DEFAULT_CONTENTS_BYTES[] = {
 #embed "../assets/typst/contents.typ"
-			};
-			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
-			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
-			config["contents"] = contents;
-		}
+		};
+		constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
+		std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
+		config["contents"]["typst"] = contents;
 	}
 
 	if (!config["metadata"]) {

@@ -83,13 +83,17 @@ void Generate::create_pdf(const std::vector<std::string>& problems) {
 	                          (source + utils::filetype_extension()));
 
 	bool regenerate = get<bool>("--regen");
-	if (!regenerate && fs::exists(output_file_path)) {
-		auto t_output = fs::last_write_time(output_file_path);
-		fs::file_time_type t_input = t_output;
-		for (const auto& problem : problems) {
-			t_input = max(t_input, fs::last_write_time(get_problem_solution_path(problem)));
+	if (!regenerate) {
+		if (fs::exists(output_file_path)) {
+			auto t_output = fs::last_write_time(output_file_path);
+			fs::file_time_type t_input = t_output;
+			for (const auto& problem : problems) {
+				t_input = max(t_input, fs::last_write_time(get_problem_solution_path(problem)));
+			}
+			regenerate = t_input > t_output;
+		} else {
+			regenerate = true;
 		}
-		regenerate = t_input > t_output;
 	}
 	if (regenerate) {
 		try {

@@ -144,7 +144,7 @@ std::string Show::process(std::string& input) const {
 		    "Invalid value for --color: should be one of auto, never or always (received " +
 		    color_opt + ")");
 	}
-	return input;
+	return input + '\n';
 }
 
 std::string Show::get_statement(const fs::path& pb) const {
@@ -168,9 +168,6 @@ std::string Show::get_statement(const fs::path& pb) const {
 		} else {
 			pb_statement += (line + '\n');
 		}
-	}
-	while (!pb_statement.empty() && pb_statement.back() == '\n') {
-		pb_statement.pop_back();
 	}
 
 	return process(pb_statement);

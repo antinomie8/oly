@@ -114,12 +114,12 @@ bool is_separator(const std::string& line) {
 
 std::string trim_newlines(const std::string& str) {
 	auto start = str.begin();
-	while (start != str.end() && *start == '\n')
-		++start;
 	auto end = str.end();
-	do {
+	while (start != end && *start == '\n')
+		++start;
+	do { // use do-while instead of while because of null byte at the end of the string
 		--end;
-	} while (end != start && *start == '\n');
+	} while (end != start && *end == '\n');
 	return std::string(start, end + 1);
 }
 

@@ -24,13 +24,13 @@ Default::Default() {
 	add("--version,-v", "print program version and related info",
 	    [] { Default::print_version(); });
 	add("--verify-config", "check config file", [this] {
-		configuration::load_config(get<std::string>("--config-file"));
+		Config::load_config(get<std::string>("--config-file"));
 		std::println("All good !");
 	});
 	add(
 	    "--scheme", "use the scheme handler",
 	    [this](std::string request) {
-		    configuration::load_config(get<std::string>("--config-file"));
+		    Config::load_config(get<std::string>("--config-file"));
 
 		    if (request.empty()) {
 			    std::string pb_name;

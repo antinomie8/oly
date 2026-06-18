@@ -45,7 +45,7 @@ std::string expand_vars(const std::string& str, bool expand_config_vars,
 			if (metadata[match])
 				return metadata[match].as<std::string>();
 
-			auto rep = opts.query(match);
+			auto rep = opts.get(match);
 			if (rep)
 				return rep.value();
 
@@ -75,7 +75,7 @@ std::string expand_env_vars(const std::string& str) {
 }
 
 std::string filetype_extension() {
-	return opts.lang == configuration::lang::latex ? ".tex" : ".typ";
+	return opts.lang == Config::lang::latex ? ".tex" : ".typ";
 }
 
 void set_log_level(std::string level) {
@@ -104,7 +104,7 @@ void set_log_level(std::string level) {
 
 bool is_separator(const std::string& line) {
 	std::regex separator_pattern;
-	if (opts.lang == configuration::lang::latex) {
+	if (opts.lang == Config::lang::latex) {
 		separator_pattern = R"(^\\hrulebar\s*$)";
 	} else {
 		separator_pattern = R"(^#divider\(\)\s*$)";
@@ -129,7 +129,7 @@ bool is_yaml(const std::string& line) {
 }
 
 bool should_ignore(const std::string& line) {
-	if (opts.lang == configuration::lang::typst) {
+	if (opts.lang == Config::lang::typst) {
 		if (line.starts_with("#import")) {
 			return true;
 		}
@@ -400,7 +400,7 @@ namespace preview {
 void create_preview_file(const std::string& source) {
 	fs::path preview_file_path(opts.tmpdir / source / ("preview" + filetype_extension()));
 	shared["packages"] =
-	    opts.lang == configuration::lang::latex ? opts.latex_packages : opts.typst_packages;
+	    opts.lang == Config::lang::latex ? opts.latex_packages : opts.typst_packages;
 	utils::file::create(preview_file_path, utils::expand_vars(opts.preview));
 }
 } // namespace preview

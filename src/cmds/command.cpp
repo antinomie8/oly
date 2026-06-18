@@ -33,7 +33,7 @@ Command::Command() {
 			Log::CRITICAL("lang needs to be one of latex or typst !");
 		} else {
 			opts.lang =
-			    lang == "latex" ? configuration::lang::latex : configuration::lang::typst;
+			    lang == "latex" ? Config::lang::latex : Config::lang::typst;
 		}
 	});
 	add("--language", "Choose which language to use",
@@ -175,7 +175,7 @@ void Command::load_config_file(const std::vector<std::string>& args) {
 			}
 		}
 	}
-	configuration::load_config(get<std::string>("--config-file"));
+	Config::load_config(get<std::string>("--config-file"));
 }
 
 void Command::print_help() const {

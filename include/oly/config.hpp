@@ -8,11 +8,11 @@
 
 namespace fs = std::filesystem;
 
-namespace configuration {
+namespace Config {
 void load_config(std::string config_file_path);
 
 enum class lang : std::uint8_t { latex, typst };
-} // namespace configuration
+} // namespace Config
 
 struct Options {
 	// the author's name in the preview and generated pdfs
@@ -26,7 +26,7 @@ struct Options {
 
 	// the markup language the solutions are typed in
 	// must be one of latex or typst (default latex)
-	configuration::lang lang = configuration::lang::latex;
+	Config::lang lang = Config::lang::latex;
 
 	// language setting passed to the typst preview and preamble files.
 	// must be a two or three letters language code
@@ -120,9 +120,9 @@ struct Options {
 		if (node["lang"]) {
 			auto s = node["lang"].as<std::string>();
 			if (s == "latex")
-				lang = configuration::lang::latex;
+				lang = Config::lang::latex;
 			else if (s == "typst")
-				lang = configuration::lang::typst;
+				lang = Config::lang::typst;
 			else
 				throw std::runtime_error("Invalid value for 'lang': " + s);
 		}
@@ -173,7 +173,7 @@ struct Options {
 			metadata = node["metadata"].as<std::string>();
 	}
 
-	std::optional<std::string> query(std::string config_key) {
+	std::optional<std::string> get(std::string config_key) {
 		if (config[config_key] && config[config_key].IsScalar()) {
 			return config[config_key].as<std::string>();
 		} else {

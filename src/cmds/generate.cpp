@@ -93,10 +93,10 @@ void Generate::create_pdf(const std::vector<std::string>& problems) {
 	}
 	if (regenerate) {
 		try {
-			if (opts.lang == configuration::lang::latex) {
+			if (opts.lang == Config::lang::latex) {
 				create_latex_file(problems, output_file_path);
 				compile_latex_file(problems, output_file_path);
-			} else if (opts.lang == configuration::lang::typst) {
+			} else if (opts.lang == Config::lang::typst) {
 				create_typst_file(problems, output_file_path);
 				compile_typst_file(problems, output_file_path);
 			}
@@ -320,9 +320,9 @@ int Generate::execute() {
 			    entry.path().filename().stem().string() == "solution") {
 
 				if (entry.path().extension() == ".typ") {
-					opts.lang = configuration::lang::typst;
+					opts.lang = Config::lang::typst;
 				} else if (entry.path().extension() == ".tex") {
-					opts.lang = configuration::lang::latex;
+					opts.lang = Config::lang::latex;
 				} else {
 					continue;
 				}

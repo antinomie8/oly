@@ -71,12 +71,12 @@ static std::string colorize(const std::string& input) {
 		TSQueryError err;
 		return ts_query_new(l, src.c_str(), src.length(), &offset, &err);
 	};
-	if (opts.lang == configuration::lang::latex) {
+	if (opts.lang == Config::lang::latex) {
 		// hella slow for some reason
 		static TSQuery* q_latex = get_query(tree_sitter_latex(), latex_queries);
 		query = q_latex;
 		lang = tree_sitter_latex();
-	} else if (opts.lang == configuration::lang::typst) {
+	} else if (opts.lang == Config::lang::typst) {
 		static TSQuery* q_typst = get_query(tree_sitter_typst(), typst_queries);
 		query = q_typst;
 		lang = tree_sitter_typst();

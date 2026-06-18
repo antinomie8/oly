@@ -159,7 +159,7 @@ static void add_defaults(YAML::Node& config) {
 	}
 }
 
-namespace configuration {
+namespace Config {
 void load_config(std::string config_file_path) {
 	const fs::path config_file = fs::absolute(utils::expand_env_vars(config_file_path));
 
@@ -196,4 +196,4 @@ void load_config(std::string config_file_path) {
 		}
 	}
 }
-} // namespace configuration
+} // namespace Config

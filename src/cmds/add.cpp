@@ -41,9 +41,9 @@ void Add::create_solution_file(const fs::path& path, const std::string& body,
 	out << metadata;
 
 	std::string contents =
-	    (std::string(opts.lang == configuration::lang::typst ? "/*" : "\\iffalse") + "\n" +
+	    (std::string(opts.lang == Config::lang::typst ? "/*" : "\\iffalse") + "\n" +
 	     std::string(out.c_str()) + "\n" +
-	     (opts.lang == configuration::lang::typst ? "*/" : "\\fi") + ("\n\n" + body));
+	     (opts.lang == Config::lang::typst ? "*/" : "\\fi") + ("\n\n" + body));
 
 	utils::file::create(path, contents);
 }

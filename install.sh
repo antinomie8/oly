@@ -6,7 +6,7 @@ set -euo pipefail
 GLOBAL=""
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-	--global | -g) GLOBAL=1 ;;
+		--global | -g) GLOBAL=1 ;;
 	esac
 	shift
 done

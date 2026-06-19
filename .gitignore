@@ -1,6 +1,6 @@
 /build
 /.cache
 
-/todo.md
+/src/version.h
 
-*.pdf
+/assets/typst/**/*.pdf

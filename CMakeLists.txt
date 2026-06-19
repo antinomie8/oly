@@ -107,12 +107,48 @@ add_executable(oly ${SOURCES})
 
 add_dependencies(oly ts_latex_gen)
 
-target_compile_definitions(oly PRIVATE
-	OLY_NAME="${PROJECT_NAME}"
-	OLY_VERSION="${PROJECT_VERSION}"
-	OLY_BUILD_TYPE="$<CONFIG>"
-	OLY_COMMIT_HASH="${GIT_COMMIT_HASH}"
+# generate version.h
+file(WRITE "${CMAKE_BINARY_DIR}/get_git_hash.cmake" [=[
+execute_process(
+	COMMAND git rev-parse --short HEAD
+	WORKING_DIRECTORY "${SOURCE_DIR}"
+	OUTPUT_VARIABLE GIT_COMMIT_HASH
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+	ERROR_QUIET
 )
+if(NOT GIT_COMMIT_HASH)
+	set(GIT_COMMIT_HASH "unknown")
+endif()
+
+set(VERSION_CONTENT "#pragma once
+#define OLY_NAME \"${PROJECT_NAME}\"
+#define OLY_VERSION \"${PROJECT_VERSION}\"
+#define OLY_BUILD_TYPE \"${BUILD_TYPE}\"
+#define OLY_COMMIT_HASH \"${GIT_COMMIT_HASH}\"
+")
+
+# Check the file inside the actual src/ directory
+if(EXISTS "${SOURCE_DIR}/src/version.h")
+	file(READ "${SOURCE_DIR}/src/version.h" EXISTING_CONTENT)
+endif()
+
+# Only overwrite if the commit hash or metadata actually changed
+if(NOT "${VERSION_CONTENT}" STREQUAL "${EXISTING_CONTENT}")
+	file(WRITE "${SOURCE_DIR}/src/version.h" "${VERSION_CONTENT}")
+endif()
+]=])
+
+add_custom_target(generate_version_header ALL
+    COMMAND ${CMAKE_COMMAND} 
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DBUILD_TYPE=$<CONFIG>
+        -DPROJECT_NAME=${PROJECT_NAME}
+        -DPROJECT_VERSION=${PROJECT_VERSION}
+        -P ${CMAKE_BINARY_DIR}/get_git_hash.cmake
+    BYPRODUCTS ${CMAKE_SOURCE_DIR}/src/version.h
+)
+
+add_dependencies(oly generate_version_header)
 
 target_compile_features(oly PRIVATE cxx_std_26)
 

@@ -114,6 +114,14 @@ bool is_separator(const std::string& line) {
 	return std::regex_match(line, separator_pattern);
 }
 
+bool is_package_import(const std::string& line) {
+	if (opts.lang == Config::lang::latex) {
+		return line.starts_with("\\usepackage");
+	} else {
+		return line.starts_with("#import ");
+	}
+}
+
 std::string trim_newlines(std::string& str) {
 	str.erase(str.find_last_not_of('\n') + 1);
 	str.erase(0, str.find_first_not_of('\n'));

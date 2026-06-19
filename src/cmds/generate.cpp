@@ -39,9 +39,7 @@ std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
 	std::string line;
 	while (getline(file, line)) {
 		if (!utils::is_yaml(line) && !utils::should_ignore(line)) {
-			if (opts.lang == Config::lang::latex && line.starts_with("\\usepackage")) {
-				body += (line + '\n');
-			} else if (opts.lang == Config::lang::typst && line.starts_with("#import")) {
+			if (utils::is_package_import(line)) {
 				body += (line + '\n');
 			} else {
 				bodies.push_back(body);

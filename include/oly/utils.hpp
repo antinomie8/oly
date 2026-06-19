@@ -33,6 +33,9 @@ void set_log_level(std::string level);
 bool is_separator(const std::string& line);
 
 [[nodiscard]]
+bool is_package_import(const std::string& line);
+
+[[nodiscard]]
 std::string trim_newlines(std::string& str);
 
 [[nodiscard]]

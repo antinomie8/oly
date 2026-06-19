@@ -155,7 +155,8 @@ std::string Show::get_statement(const fs::path& pb) const {
 	std::string pb_statement;
 	std::string line;
 	while (getline(file, line)) {
-		if (!utils::is_yaml(line) && !utils::should_ignore(line)) {
+		if (!utils::is_yaml(line) && !utils::should_ignore(line) &&
+		    !utils::is_package_import(line)) {
 			if (!utils::is_separator(line)) {
 				pb_statement += (line + '\n');
 			}

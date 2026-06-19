@@ -76,6 +76,12 @@ Configuration is done via a yaml file at `${XDG_CONFIG_HOME:-$HOME/.config}/oly/
 
 If it does not exist yet, it will be created and opened in your editor with an example config.
 
+The default Typst header and LaTeX preamble are very minimal; you might want to use
+your own instead, which you can do with the `packages`, `preamble`, and `preview`
+config options. For instance, you can find a typst package compatible with the
+default `preamble` and `preview` in
+[the author's dotfiles](https://github.com/antinomie8/dotfiles/tree/main/etc/typst/antoine).
+
 ## Using the oly scheme handler
 The `oly` typst header file creates an eponymous command which takes a problem name
 as its first argument and an optional content as its second argument. It

@@ -1,256 +1,42 @@
-#import "definitions.typ": *
-#import "environments.typ": *
+// main setup
+#let setup(
+	title: none,
+	subtitle: none,
+	author: (),
+	date: none,
+	maketitle: true,
+	body,
+) = {
+	if type(author) == str { author = (author,) }
+	set document(title: title, author: author)
 
-#let toc = {
-	show outline.entry.where(level: 1): it => {
-		v(1.2em, weak: true)
-		strong(it)
-	}
-	text(weight: "bold", fill: colors.title, size: 1.4em, font: fonts.sans, get_env_name("toc"))
-	v(0.6em)
-	outline(
-		title: none,
-		indent: 2em,
-	)
+	set par(justify: true)
+
+	body
 }
-
-// symbols
-#let prod = sym.product
-#let setminus = sym.without
-#let cap = sym.inter
-#let cup = sym.union
-#let iff = sym.arrow.l.r.double.long
-#let pm = sym.plus.minus
-#let mp = sym.minus.plus
-#let tensor = sym.times.o
-#let int = sym.integral
-#let oint = sym.integral.cont
-#let iint = sym.integral.double
-#let oiint = sym.integral.surf
-#let iiint = sym.integral.triple
-#let oiiint = sym.integral.vol
-
-#let ord = math.op("ord")
-#let pgcd = math.op("pgcd")
-#let ppcm = math.op("ppcm")
-
-#let sumcyc = $sum_("cyc")$
-#let sumsym = $sum_("sym")$
-#let NNN = $NN^*$
-
-#let pmod(x) = $space (mod #x)$
-#let dbbracket(lhs, rhs) = {
-	if type(lhs) == array {
-		lhs = lhs.join()
-	}
-	if type(rhs) == array {
-		rhs = rhs.join()
-	}
-	math.lr[$⟦ lhs ; rhs ⟧$]
-}
-#let card = math.abs
-#let proj(point) = {
-	math.attach([$=$], t: [$#point$])
-}
-
-// commands
-#let boxed(x) = rect(
-	stroke: 0.5pt,
-	inset: 6pt,
-	text(x),
-)
-#let hrule = box(
-	width: 100%,
-	align(center)[#line(length: 100%, stroke: 0.6pt)],
-)
-#let Box = {
-	h(1fr)
-	text(size: 1.4em, $square$)
-}
-#let vocab(x) = text(weight: "bold", fill: rgb("#0000ff"), x)
-#let bf(x) = $bold(upright(#x))$
-#let cal(it) = math.class("normal", context {
-	show math.equation: set text(
-		font: ("Garamond-Math", "New Computer Modern Math"),
-		stylistic-set: 3,
-	)
-	let scaling = 100% * (1em.to-absolute() / text.size)
-	let wrapper = if scaling < 60% {
-		math.sscript
-	} else if scaling < 100% {
-		math.script
-	} else {
-		it => it
-	}
-	box(text(top-edge: "bounds", $wrapper(math.cal(it))$))
-})
 
 #let oly(name, ..arg) = {
 	let text = arg.at(0, default: name)
 	link("oly://gen?name=" + name, text)
 }
 
-#let board-examples(
-	n, // content
-	f, // color function: (x, y) => boolean
-	..args,
-	cell-size: 2em,
-	spacing: 2em,
-	position: top,
-) = {
-	let board(k) = {
-		return figure(
-			table(
-				columns: k * (cell-size,),
-				rows: k * (cell-size,),
-				align: center,
-				stroke: 1pt,
-				fill: (x, y) => if f(x, y) { gray } else { white },
-			),
-			numbering: none,
-			caption: figure.caption(
-				position: position,
-			)[$#n = #k$],
-		)
-	}
-	let arr = ()
-	for i in args.pos() {
-		arr.push(board(i))
-	}
-	figure(
-		grid(
-			columns: args.pos().len(),
-			gutter: spacing,
-			..arr,
-		),
-	)
-}
+#let counter = 0
+#let problem(body) = context [
+	#{ counter = counter + 1 }
+	*Problem #counter:* #body
+]
+#let problem(source, body) = context [
+	#{ counter = counter + 1 }
+	*Problem #counter (#source):* #body
+]
+#let _problem(source, body) = [
+	*Problem (#source):* #body
+]
+#let _problem(source, body) = [
+	*Problem:* #body
+]
 
-// main setup
-#let setup(
-	document_title: "",
-	author: "",
-	date: none,
-	maketitle: true,
-	body,
-) = {
-	set document(title: {
-		align(center, text(
-			size: 1em,
-			weight: "bold",
-			font: fonts.sans,
-			document_title,
-		))
-	})
-	set document(author: author)
-	set page(
-		paper: "a4",
-		margin: auto,
-		header: context {
-			set text(size: 0.8em)
-			set align(left)
-			text(style: "normal", author)
-			if (date != none) {
-				h(0.2em)
-				sym.dash.em
-				h(0.2em)
-				context {
-					let found = false
-					for (en, tr) in months.at(text.lang, default: months.at("en")) {
-						if (date.find(en) != none) {
-							found = true
-							show en: tr
-							text(style: "italic", date)
-							break
-						}
-					}
-					if not found {
-						text(style: "italic", date)
-					}
-				}
-			}
-			h(1fr)
-			text(weight: "bold", document_title)
-			box(width: 100%, align(center)[#line(length: 100%, stroke: 0.7pt)])
-		},
-		numbering: "1",
-	)
-	set par(
-		justify: true,
-	)
-	set text(
-		font: "New Computer Modern",
-		size: 11pt,
-		fallback: false,
-	)
-
-	// Section headers
-	let heading_numbering(..nums) = {
-		let (section, ..subsections) = nums.pos()
-		if subsections.len() == 0 {
-			numbering("I", section)
-		} else {
-			numbering("1", subsections.at(subsections.len() - 1))
-		}
-	}
-	set heading(numbering: heading_numbering)
-	show heading: it => {
-		block([
-			#if (it.numbering != none) [
-				#text(
-					fill: colors.headers,
-					counter(heading).display(),
-				)
-				#h(0.1em)
-			]
-			#it.body
-			#v(0.4em)
-		])
-	}
-	show heading: set text(font: fonts.sans, size: 11pt)
-	show heading.where(level: 1): set text(size: 14pt)
-	show heading.where(level: 2): set text(size: 12pt)
-
-	// Colorize hyperlinks
-	show link: it => {
-		set text(fill: if (type(it.dest) == label) { colors.label } else {
-			colors.hyperlink
-		})
-		it
-	}
-	show ref: it => {
-		link(it.target, it)
-	}
-
-	// Change quote display
-	set quote(block: true)
-	show quote: set pad(x: 2em, y: 0em)
-	show quote: it => {
-		set text(style: "italic")
-		v(-1em)
-		it
-		v(-0.5em)
-	}
-
-	// Indent lists
-	set enum(indent: 1em)
-	set list(indent: 1em)
-
-	// Allow math blocks to break across pages
-	show math.equation: set block(breakable: true)
-
-	// package settings
-	show: thmrules.with(qed-symbol: $square$)
-
-	show title: it => {
-		set align(center)
-		it
-	}
-	if (maketitle and type(document_title) == str) {
-		v(1em)
-		title()
-		v(1em)
-	}
-
-	body
-}
+#let solution(body) = [
+	*Solution:* #body
+	#align(right, $square$)
+]

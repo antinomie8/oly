@@ -9,6 +9,7 @@ local function highlight_metadata(first, last)
 
 	local valid_keywords = {
 		title = true,
+		subtitle = true,
 		source = true,
 		topic = true,
 		tags = true,
@@ -16,6 +17,7 @@ local function highlight_metadata(first, last)
 		date = true,
 		desc = true,
 		author = true,
+		teacher = true,
 		difficulty = true,
 	}
 	local priority = 130 -- needs to override lsp semantic tokens (priority 125)
@@ -27,7 +29,7 @@ local function highlight_metadata(first, last)
 			goto continue
 		end
 
-		local whitespace, keyword, _ = line:match("^(%s*)([a-zA-Z]+):%s*(.*)")
+		local whitespace, keyword = line:match("^(%s*)([a-zA-Z]+):%s*(.*)")
 		if not keyword then
 			if vim.api.nvim_win_get_cursor(0)[1] == lnum then -- editing the current line
 				goto continue

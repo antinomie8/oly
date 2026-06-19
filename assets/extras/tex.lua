@@ -9,6 +9,7 @@ local function highlight_metadata(first, last)
 
 	local valid_keywords = {
 		title = true,
+		subtitle = true,
 		source = true,
 		topic = true,
 		tags = true,
@@ -16,6 +17,7 @@ local function highlight_metadata(first, last)
 		date = true,
 		desc = true,
 		author = true,
+		teacher = true,
 		difficulty = true,
 	}
 	local priority = 130 -- needs to override lsp semantic tokens (priority 125)
@@ -23,11 +25,11 @@ local function highlight_metadata(first, last)
 	for lnum, line in ipairs(lines) do
 		lnum = lnum + first
 
-		if line:match("^%%?%s*$") then
+		if line:match("^%%?%s*$") or line:match("\\iffalse") then
 			goto continue
 		end
 
-		local commentstring, keyword = line:match("^(%%%s*)([a-zA-Z]+):")
+		local whitespace, keyword = line:match("^(%s*)([a-zA-Z]+):%s*(.*)")
 		if not keyword then
 			if vim.api.nvim_win_get_cursor(0)[1] == lnum then -- editing the current line
 				goto continue
@@ -36,7 +38,7 @@ local function highlight_metadata(first, last)
 		end
 
 		-- Highlight full line
-		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #commentstring + #keyword + 1, {
+		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #whitespace + #keyword + 1, {
 			end_col = #line,
 			hl_group = "Text",
 			spell = false,
@@ -45,8 +47,8 @@ local function highlight_metadata(first, last)
 
 		-- Highlight keyword
 		local group = valid_keywords[keyword] and "Identifier" or "Error"
-		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #commentstring, {
-			end_col = #commentstring + #keyword,
+		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #whitespace, {
+			end_col = #whitespace + #keyword,
 			hl_group = group,
 			spell = false,
 			priority = priority,
@@ -96,6 +98,7 @@ end
 
 if vim.env.OLY and not vim.b[buf].oly_highlight then
 	vim.b[buf].oly_highlight = true
+	vim.b[buf].vimtex_main = vim.fn.expand("%:p:h") .. "/preview.tex"
 
 	vim.cmd.cd(vim.fn.expand("%:p:h"))
 

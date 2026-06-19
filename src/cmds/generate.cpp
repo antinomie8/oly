@@ -37,18 +37,28 @@ std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
 	std::vector<std::string> bodies;
 	std::string body;
 	std::string line;
-	while (getline(file, line))
-		if (!utils::is_yaml(line) && !utils::should_ignore(line))
-			break;
-
 	while (getline(file, line)) {
+		if (!utils::is_yaml(line) && !utils::should_ignore(line)) {
+			if (opts.lang == Config::lang::latex && line.starts_with("\\usepackage")) {
+				body += (line + '\n');
+			} else if (opts.lang == Config::lang::typst && line.starts_with("#import")) {
+				body += (line + '\n');
+			} else {
+				bodies.push_back(body);
+				body = "";
+				break;
+			}
+		}
+	}
+
+	do {
 		if (utils::is_separator(line)) {
 			bodies.push_back(body);
 			body = "";
 		} else {
 			body += (line + '\n');
 		}
-	}
+	} while (getline(file, line));
 	bodies.push_back(body);
 
 	return bodies;
@@ -104,7 +114,7 @@ void Generate::create_pdf(const std::vector<std::string>& problems) {
 				compile_typst_file(problems, output_file_path);
 			}
 		} catch (const std::exception& e) {
-			Log::ERROR(e.what());
+			Log::ERROR("Error generating " + source + ": " + e.what());
 		}
 	} else {
 		utils::run({opts.pdf_viewer, output_file_path.replace_extension(".pdf")}, true, true);
@@ -129,6 +139,8 @@ void Generate::create_latex_file(const std::vector<std::string>& problems,
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
 
+		out << bodies[0]; // packages
+
 		if (problems.size() > 1)
 			out << "\\begin{problem}";
 		else
@@ -136,8 +148,8 @@ void Generate::create_latex_file(const std::vector<std::string>& problems,
 		if (metadata["source"])
 			out << " [" << metadata["source"] << "]";
 		out << "\n";
-		if (!bodies.empty())
-			out << bodies[0];
+		if (bodies.size() > 1)
+			out << bodies[1];
 		if (problems.size() > 1)
 			out << "\\end{problem}";
 		else
@@ -146,7 +158,7 @@ void Generate::create_latex_file(const std::vector<std::string>& problems,
 		if (metadata["url"] and !metadata["url"].IsNull())
 			out << R"(\noindent\emph{Link}: \url{)" << metadata["url"] << "}"
 			    << "\n\n";
-		for (size_t i = 1; i < bodies.size(); ++i)
+		for (size_t i = 2; i < bodies.size(); ++i)
 			out << "\\hrulebar" << "\n\n" << bodies[i];
 		out << "\n" << "\\pagebreak" << "\n\n";
 	}
@@ -223,7 +235,9 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 			out << utils::expand_vars(typst_preamble);
 		}
 
-		bool is_problem = bodies.size() > 1;
+		out << bodies[0]; // packages
+
+		bool is_problem = bodies.size() > 2;
 		if (is_problem) {
 			if (problems.size() > 1)
 				out << "#problem";
@@ -233,8 +247,8 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 				out << "(\"" << metadata_node["source"] << "\")";
 			out << "[\n";
 		}
-		if (!bodies.empty())
-			out << bodies[0];
+		if (bodies.size() > 1)
+			out << bodies[1];
 		if (is_problem)
 			out << "]";
 		out << "\n\n";
@@ -244,8 +258,8 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 			    << " _]"
 			    << "\n\n";
 
-		for (size_t i = 1; i < bodies.size(); ++i) {
-			if (i == 1) {
+		for (size_t i = 2; i < bodies.size(); ++i) {
+			if (i == 2) {
 				out << "#solution[\n" << utils::trim_newlines(bodies[i]) << "\n]";
 			} else {
 				out << "#divider()" << "\n\n" << bodies[i];

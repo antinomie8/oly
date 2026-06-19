@@ -33,7 +33,7 @@ void set_log_level(std::string level);
 bool is_separator(const std::string& line);
 
 [[nodiscard]]
-std::string trim_newlines(const std::string& str);
+std::string trim_newlines(std::string& str);
 
 [[nodiscard]]
 bool is_yaml(const std::string& line);

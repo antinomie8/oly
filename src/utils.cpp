@@ -114,15 +114,10 @@ bool is_separator(const std::string& line) {
 	return std::regex_match(line, separator_pattern);
 }
 
-std::string trim_newlines(const std::string& str) {
-	auto start = str.begin();
-	auto end = str.end();
-	while (start != end && *start == '\n')
-		++start;
-	do { // use do-while instead of while because of null byte at the end of the string
-		--end;
-	} while (end != start && *end == '\n');
-	return std::string(start, end + 1);
+std::string trim_newlines(std::string& str) {
+	str.erase(str.find_last_not_of('\n') + 1);
+	str.erase(0, str.find_first_not_of('\n'));
+	return str;
 }
 
 bool is_yaml(const std::string& line) {
@@ -132,11 +127,11 @@ bool is_yaml(const std::string& line) {
 
 bool should_ignore(const std::string& line) {
 	if (opts.lang == Config::lang::typst) {
-		if (line.starts_with("#import") || line == "/*" or line == "*/") {
+		if (line == "/*" or line == "*/") {
 			return true;
 		}
 	} else {
-		if (line.starts_with("\\usepackage") || line == "\\iffalse" or line == "\\fi") {
+		if (line == "\\iffalse" or line == "\\fi") {
 			return true;
 		}
 	}

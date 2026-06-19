@@ -130,7 +130,7 @@ static void add_defaults(YAML::Node& config) {
 		config["preview"]["typst"] = preview;
 	}
 
-	if (!config["preview"] || !config["contents"]["latex"]) {
+	if (!config["contents"] || !config["contents"]["latex"]) {
 		constexpr char DEFAULT_CONTENTS_BYTES[] = {
 #embed "../assets/tex/contents.tex"
 		};
@@ -138,7 +138,7 @@ static void add_defaults(YAML::Node& config) {
 		std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
 		config["contents"]["latex"] = contents;
 	}
-	if (!config["preview"] || !config["contents"]["typst"]) {
+	if (!config["contents"] || !config["contents"]["typst"]) {
 		constexpr char DEFAULT_CONTENTS_BYTES[] = {
 #embed "../assets/typst/contents.typ"
 		};

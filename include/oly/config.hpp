@@ -109,6 +109,10 @@ struct Options {
 	std::string latex_contents;
 	std::string typst_contents;
 
+	// the preamble used by 'oly gen'
+	std::string latex_preamble;
+	std::string typst_preamble;
+
 	// metadata you get prompted for in 'oly add'
 	std::string metadata;
 
@@ -180,6 +184,12 @@ struct Options {
 				latex_contents = node["contents"]["latex"].as<std::string>();
 			if (node["contents"]["typst"])
 				typst_contents = node["contents"]["typst"].as<std::string>();
+		}
+		if (node["preamble"]) {
+			if (node["preamble"]["latex"])
+				latex_preamble = node["preamble"]["latex"].as<std::string>();
+			if (node["preamble"]["typst"])
+				typst_preamble = node["preamble"]["typst"].as<std::string>();
 		}
 		if (node["metadata"])
 			metadata = node["metadata"].as<std::string>();

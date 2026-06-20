@@ -147,6 +147,23 @@ static void add_defaults(YAML::Node& config) {
 		config["contents"]["typst"] = contents;
 	}
 
+	if (!config["preamble"] || !config["preamble"]["latex"]) {
+		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
+#embed "../assets/tex/preamble.tex"
+		};
+		constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
+		std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
+		config["preamble"]["latex"] = preamble;
+	}
+	if (!config["preamble"] || !config["preamble"]["typst"]) {
+		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
+#embed "../assets/typst/preamble.typ"
+		};
+		constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
+		std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
+		config["preamble"]["typst"] = preamble;
+	}
+
 	if (!config["metadata"]) {
 		constexpr char DEFAULT_METADATA_BYTES[] = {
 #embed "../assets/metadata.yaml"

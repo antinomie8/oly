@@ -124,13 +124,8 @@ void Generate::create_latex_file(const std::vector<std::string>& problems,
 	fs::create_directories(latex_file_path.parent_path());
 	std::ofstream out(latex_file_path);
 
-	constexpr char LATEX_PREAMBLE[] = {
-#embed "../../assets/tex/preamble.tex"
-	};
-	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
-	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
 	shared["packages"] = opts.latex_packages;
-	out << utils::expand_vars(latex_preamble);
+	out << utils::expand_vars(opts.latex_preamble);
 
 	for (const std::string& problem : problems) {
 		const fs::path pb_path = get_problem_solution_path(problem);
@@ -213,14 +208,9 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 	fs::create_directories(typst_file_path.parent_path());
 	std::ofstream out(typst_file_path);
 
-	constexpr char TYPST_PREAMBLE[] = {
-#embed "../../assets/typst/preamble.typ"
-	};
-	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(TYPST_PREAMBLE);
-	std::string typst_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
 	shared["packages"] = opts.typst_packages;
 	if (problems.size() != 1) {
-		out << utils::expand_vars(typst_preamble);
+		out << utils::expand_vars(opts.typst_preamble);
 	}
 
 	for (const std::string& problem : problems) {
@@ -230,7 +220,7 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 
 		if (problems.size() == 1) {
 			metadata = metadata_node;
-			out << utils::expand_vars(typst_preamble);
+			out << utils::expand_vars(opts.typst_preamble);
 		}
 
 		out << bodies[0]; // packages

@@ -82,7 +82,8 @@ packages:
 #   url:    \n\
 #   "
 
-# You can also override preview and contents
+# You can also override preview, preamble and contents
 # preview is what gets put in the preview file
 # contents is the initial content in a file opened through 'oly add'
-# both should map keys 'latex' or 'typst' (or both) to a string
+# preamble is the what gets put at the top of the filed used to create pdfs with 'oly gen'
+# they should map keys 'latex' or 'typst' (or both) to a string

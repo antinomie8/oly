@@ -236,13 +236,28 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 		out << bodies[0]; // packages
 
 		bool is_problem = bodies.size() > 2;
+
+		if (!is_problem && metadata_node["url"] && metadata_node["url"].IsScalar())
+			out << "#link(\"" << metadata_node["url"] << "\")"
+			    << "[🔗_" << metadata_node["url"] << " _]" << "\n\n";
+
 		if (is_problem) {
 			if (problems.size() > 1)
 				out << "#problem";
 			else
 				out << "#_problem";
-			if (metadata_node["source"])
-				out << "(\"" << metadata_node["source"] << "\")";
+			if (metadata_node["source"]) {
+				out << "(\"" << metadata_node["source"] << "\"";
+				if (!(metadata_node["url"] && metadata_node["url"].IsScalar()))
+					out << ")";
+			}
+			if (metadata_node["url"] && metadata_node["url"].IsScalar()) {
+				if (metadata_node["source"])
+					out << ", ";
+				else
+					out << "(";
+				out << "link: \"" << metadata_node["url"] << "\")";
+			}
 			out << "[\n";
 		}
 		if (bodies.size() > 1)
@@ -250,11 +265,6 @@ void Generate::create_typst_file(const std::vector<std::string>& problems,
 		if (is_problem)
 			out << "]";
 		out << "\n\n";
-
-		if (metadata_node["url"] and !metadata_node["url"].IsNull())
-			out << "#link(\"" << metadata_node["url"] << "\")[_" << metadata_node["url"]
-			    << " _]"
-			    << "\n\n";
 
 		for (size_t i = 2; i < bodies.size(); ++i) {
 			if (i == 2) {

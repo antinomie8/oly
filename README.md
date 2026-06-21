@@ -37,8 +37,7 @@ cp -r assets/typst ~/.local/share/
 sudo cp assets/extras/_oly /usr/local/share/zsh/site-functions/ # or anywhere in your $fpath
 
 # if you use Neovim
-cp assets/extras/tex.lua ~/.config/nvim/after/ftplugin/
-cp assets/extras/typst.lua ~/.config/nvim/after/ftplugin/
+cp assets/extras/oly.lua ~/.config/nvim/after/plugin/
 ```
 
 ## Usage

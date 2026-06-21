@@ -18,13 +18,6 @@ install: release
 	cp build/Release/oly ~/.local/bin/
 	oly --version
 
-
-sync_assets:
-	rsync -r ~/.local/share/typst/packages/local/oly ./assets/typst/packages/local/
-
-	rsync ~/.config/nvim/ftplugin/typst/oly.lua ./assets/extras/typst.lua
-	rsync ~/.config/nvim/ftplugin/tex.lua ./assets/extras/tex.lua
-
 lint:
 	@-run-clang-tidy                           \
 		-p build                                 \
